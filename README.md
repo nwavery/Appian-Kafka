@@ -53,6 +53,48 @@ Key configurable properties:
 
 Refer to the `plugin.xml` file for more details on available configuration properties. The `KafkaConfig.java` class reads these properties.
 
+## Connecting to Confluent Cloud
+
+To connect this plugin to a Kafka cluster hosted on Confluent Cloud, you need to configure specific authentication and encryption settings. Confluent Cloud typically uses API keys with SASL/SSL.
+
+### 1. Obtain Confluent Cloud Kafka Cluster Details:
+
+From your Confluent Cloud dashboard, gather the following:
+
+*   **Bootstrap Server(s):** The address for your Kafka cluster (e.g., `pkc-xxxxx.region.provider.confluent.cloud:9092`).
+*   **API Key and Secret:** Generate an API key and secret. The API Key will serve as the SASL username, and the API Secret as the SASL password.
+
+### 2. Required Kafka Client Properties for Confluent Cloud:
+
+When configuring the plugin in the Appian Admin Console, you will use the following settings:
+
+*   `kafka.bootstrap.servers`: Your Confluent Cloud bootstrap server address.
+*   `kafka.security.protocol`: Set to `SASL_SSL`.
+*   `kafka.sasl.mechanism`: Set to `PLAIN`.
+*   `kafka.sasl.jaas.config`: This string provides the credentials and must be formatted as:
+    ```
+    org.apache.kafka.common.security.plain.PlainLoginModule required username="<YOUR_CONFLUENT_CLOUD_API_KEY>" password="<YOUR_CONFLUENT_CLOUD_API_SECRET>";
+    ```
+    Replace `<YOUR_CONFLUENT_CLOUD_API_KEY>` and `<YOUR_CONFLUENT_CLOUD_API_SECRET>` with your actual values. The `plugin.xml` has been updated to include fields for these SASL settings, and `KafkaConfig.java` has been modified to read and apply them.
+
+### 3. SSL Truststore Considerations:
+
+Confluent Cloud uses SSL/TLS encryption. The JVM running your Appian instance must trust the Certificate Authority (CA) that signed Confluent Cloud's SSL certificates. Modern JVMs usually include common public CAs in their default truststore, so this often works without extra configuration.
+
+If you encounter SSL handshake errors, you may need to import Confluent Cloud's CA certificate into your Appian JVM's truststore. Consult Confluent Cloud documentation for their CA certificate and Java's `keytool` documentation for instructions on importing certificates.
+
+### 4. Configuration in Appian Admin Console:
+
+After deploying the plugin (with the updated code for SASL support):
+
+1.  Go to the Appian Admin Console -> Plug-ins.
+2.  Select the "Appian Kafka Connector" plugin.
+3.  Configure the properties as follows:
+    *   **Kafka Bootstrap Servers:** Your Confluent Cloud bootstrap server address.
+    *   **Kafka Security Protocol:** `SASL_SSL`
+    *   **Kafka SASL Mechanism:** `PLAIN`
+    *   **Kafka SASL JAAS Configuration:** The formatted JAAS string with your API key and secret (e.g., `org.apache.kafka.common.security.plain.PlainLoginModule required username="API_KEY" password="API_SECRET";`). This field is masked in the Admin Console for security.
+
 ## Deployment to Appian
 
 1.  Navigate to the **Admin Console** in your Appian environment.
