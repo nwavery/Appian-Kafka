@@ -14,6 +14,8 @@ public class KafkaConfig {
     private static final String PLUGIN_KEY = "com.example.appian.kafka"; // Replace with your actual plugin key
     private static final String BOOTSTRAP_SERVERS_CONFIG = "kafka.bootstrap.servers";
     private static final String SECURITY_PROTOCOL_CONFIG = "kafka.security.protocol";
+    private static final String SASL_MECHANISM_CONFIG = "kafka.sasl.mechanism";
+    private static final String SASL_JAAS_CONFIG = "kafka.sasl.jaas.config";
     // Add other Kafka property keys as needed, e.g., SASL mechanism, JAAS config
 
     private Properties baseProperties;
@@ -33,8 +35,17 @@ public class KafkaConfig {
             String securityProtocol = config.getString(SECURITY_PROTOCOL_CONFIG);
             if (securityProtocol != null && !securityProtocol.trim().isEmpty()) {
                 baseProperties.put("security.protocol", securityProtocol);
-                // You might need to load other security-related properties here
-                // e.g., sasl.mechanism, sasl.jaas.config
+                // If SASL is used, load mechanism and JAAS config
+                if (securityProtocol.startsWith("SASL")) {
+                    String saslMechanism = config.getString(SASL_MECHANISM_CONFIG);
+                    if (saslMechanism != null && !saslMechanism.trim().isEmpty()) {
+                        baseProperties.put("sasl.mechanism", saslMechanism);
+                    }
+                    String saslJaasConfig = config.getString(SASL_JAAS_CONFIG);
+                    if (saslJaasConfig != null && !saslJaasConfig.trim().isEmpty()) {
+                        baseProperties.put("sasl.jaas.config", saslJaasConfig);
+                    }
+                }
             }
 
         } catch (Exception e) {

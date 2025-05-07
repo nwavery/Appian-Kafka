@@ -16,20 +16,23 @@
         </property>
         <property name="kafka.security.protocol" required="false">
             <name>Kafka Security Protocol</name>
-            <description>Protocol used to communicate with brokers (e.g., PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL). Default is PLAINTEXT.</description>
+            <description>Protocol used to communicate with brokers (e.g., PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL). For Confluent Cloud, use SASL_SSL.</description>
             <type>STRING</type>
             <default-value>PLAINTEXT</default-value>
         </property>
-        <!-- Add other global Kafka configurations here if needed (e.g., SASL mechanism, JAAS config template) -->
-        <!-- Example for SASL JAAS config (consider how to best manage sensitive info) -->
-        <!-- 
+        <property name="kafka.sasl.mechanism" required="false">
+            <name>Kafka SASL Mechanism</name>
+            <description>SASL mechanism to use for authentication (e.g., PLAIN, GSSAPI). For Confluent Cloud, use PLAIN with API keys.</description>
+            <type>STRING</type>
+            <default-value>PLAIN</default-value> <!-- Default to PLAIN if SASL is used -->
+        </property>
         <property name="kafka.sasl.jaas.config" required="false">
             <name>Kafka SASL JAAS Configuration</name>
-            <description>JAAS login context parameters for SASL connections in the format used by Kafka clients.</description>
+            <description>JAAS login context parameters for SASL connections. For Confluent Cloud: org.apache.kafka.common.security.plain.PlainLoginModule required username="API_KEY" password="API_SECRET";</description>
             <type>STRING</type>
-            <masked>true</masked> 
+            <masked>true</masked> <!-- Mask this field in the Admin Console as it contains secrets -->
         </property>
-        -->
+        <!-- Add other global Kafka configurations here if needed (e.g., SASL mechanism, JAAS config template) -->
     </configuration>
 
     <!-- Kafka Producer Smart Service -->
