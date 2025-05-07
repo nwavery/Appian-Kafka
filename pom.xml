@@ -65,6 +65,21 @@
 			<version>2.10.1</version>
 		</dependency>
 
+		<!-- Apache Avro -->
+		<dependency>
+			<groupId>org.apache.avro</groupId>
+			<artifactId>avro</artifactId>
+			<version>1.11.3</version> <!-- Use a recent stable Avro version -->
+		</dependency>
+
+		<!-- Confluent Kafka Avro Serializer & Schema Registry Client -->
+		<!-- This also brings in kafka-schema-serializer and kafka-schema-registry-client -->
+		<dependency>
+			<groupId>io.confluent</groupId>
+			<artifactId>kafka-avro-serializer</artifactId>
+			<version>7.5.3</version> <!-- Use a version compatible with your Confluent Platform / Kafka version -->
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

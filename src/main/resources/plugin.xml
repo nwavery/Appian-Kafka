@@ -32,6 +32,11 @@
             <type>STRING</type>
             <masked>true</masked> <!-- Mask this field in the Admin Console as it contains secrets -->
         </property>
+        <property name="kafka.schema.registry.url" required="false">
+            <name>Kafka Schema Registry URL</name>
+            <description>URL for the Confluent Schema Registry (e.g., http://localhost:8081). Required if using Avro serializers/deserializers.</description>
+            <type>STRING</type>
+        </property>
         <!-- Add other global Kafka configurations here if needed (e.g., SASL mechanism, JAAS config template) -->
     </configuration>
 
@@ -52,6 +57,12 @@
         <parameter name="value" required="true">
             <type>Text</type>
             <reference>value</reference>
+        </parameter>
+        <parameter name="valueSchema" required="true"> <!-- New input for Avro schema -->
+            <name>Value Schema</name>
+            <description>The Avro schema string for the message value (JSON format).</description>
+            <type>Text</type> <!-- Should be a long text / paragraph in Appian -->
+            <reference>valueSchemaString</reference>
         </parameter>
         <return-parameter name="success">
             <type>Boolean</type>
