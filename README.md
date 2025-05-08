@@ -14,9 +14,9 @@ The plugin implements two main smart services:
 
 - **Java Development Kit (JDK):** Version 17 or higher.
 - **Apache Maven:** For building the project.
-- **Appian Environment:** A running Appian instance to deploy and test the plugin (compatible with version specified in `plugin.xml`, e.g., 23.4+).
-- **Apache Kafka Cluster:** A running Kafka cluster accessible from the Appian environment.
-- **Confluent Schema Registry (or compatible):** Required for Avro message serialization and deserialization. The URL of the Schema Registry must be configured in the plugin settings.
+- **Appian Environment:** A running Appian instance to deploy and test the plugin.
+- **Apache Kafka Cluster:** A running Kafka cluster (this plugin now uses Kafka client version 4.0.0).
+- **Confluent Schema Registry (or compatible):** Required for Avro message serialization and deserialization. The URL of the Schema Registry must be configured in the plugin settings. (This plugin uses Confluent client libraries version 7.9.0).
 - **Appian SDK:** You need to have the Appian SDK JAR file. This is not typically available in public Maven repositories and must be obtained from Appian (e.g., from an Appian installation directory or a developer portal) and installed into your local Maven repository.
 
 ### Installing Appian SDK Locally
@@ -42,16 +42,17 @@ Replace `appian-sdk-24.1.jar` and `24.1` with the actual file name and version o
     ```bash
     mvn clean package
     ```
-    This command will compile the code, including Avro schema handling, and package the plugin into a JAR file located in the `target/` directory (e.g., `Connector-0.0.1-SNAPSHOT.jar`).
+    This command will compile the code, using Kafka clients 4.0.0 and Confluent libraries 7.9.0 (including Avro schema handling), and package the plugin into a JAR file located in the `target/` directory (e.g., `Connector-0.0.1-SNAPSHOT.jar`).
 
 ## Plugin Configuration
 
 The primary configuration for the Kafka connection is managed through the `plugin.xml` file (located in `src/main/resources/plugin.xml`). When the plugin is deployed to Appian, an administrator can configure these settings via the Admin Console.
 
 Key configurable properties:
--   `kafka.bootstrap.servers`: (Required) Comma-separated list of Kafka broker addresses (e.g., `kafka-broker1:9092,kafka-broker2:9092`).
--   `kafka.security.protocol`: (Optional) Security protocol to use (e.g., `PLAINTEXT`, `SSL`, `SASL_SSL`). Defaults to `PLAINTEXT`.
--   `kafka.schema.registry.url`: (Required for Avro) URL of the Confluent Schema Registry (e.g., `http://localhost:8081`).
+-   `kafka.bootstrap.servers`: Your Kafka brokers (e.g., `your_broker1:9092,your_broker2:9092`). The plugin is built against Kafka client 4.0.0.
+-   `kafka.security.protocol`: (e.g., `SASL_SSL`).
+-   `kafka.sasl.mechanism`: (e.g., `PLAIN`).
+-   `kafka.schema.registry.url`: URL for your Confluent Schema Registry (e.g., `http://your_schema_registry:8081`). The Avro serializers are from Confluent Platform 7.9.0 libraries.
 
 Refer to the `plugin.xml` file for more details on available configuration properties. The `KafkaConfig.java` class reads these properties.
 
@@ -96,7 +97,7 @@ After deploying the plugin (with the updated code for SASL support):
     *   **Kafka Security Protocol:** `SASL_SSL`
     *   **Kafka SASL Mechanism:** `PLAIN`
     *   **Kafka SASL JAAS Configuration:** The formatted JAAS string with your API key and secret (e.g., `org.apache.kafka.common.security.plain.PlainLoginModule required username="API_KEY" password="API_SECRET";`). This field is masked in the Admin Console for security.
-    *   **Kafka Schema Registry URL:** The URL for your Confluent Cloud Schema Registry. You will also need to configure API key and secret for Schema Registry access, typically by embedding them in the `schema.registry.url` or by setting `basic.auth.user.info` and `basic.auth.credentials.source` properties for the Schema Registry client. The current implementation passes the main `kafka.schema.registry.url` to the serializers/deserializers. For authenticated Schema Registry access, you might need to adjust `KafkaConfig.java` to set additional properties like `basic.auth.user.info` (for SR API key:secret) and `basic.auth.credentials.source` (to `USER_INFO`) on the producer/consumer properties map if the Schema Registry URL itself doesn't embed credentials. For simplicity, this example assumes the Schema Registry URL is either unsecured or credentials are part of the URL if supported by your SR client version.
+    *   **Kafka Schema Registry URL:** The URL for your Confluent Cloud Schema Registry. You will also need to configure API key and secret for Schema Registry access, typically by embedding them in the `schema.registry.url` or by setting `basic.auth.user.info` and `basic.auth.credentials.source` properties for the Schema Registry client. The current implementation passes the main `kafka.schema.registry.url` to the serializers/deserializers. For authenticated Schema Registry access, you might need to adjust `KafkaConfig.java` to set additional properties like `basic.auth.user.info` (for SR API key:secret) and `basic.auth.credentials.source` (to `USER_INFO`) on the producer/consumer properties map if the Schema Registry URL itself doesn't embed credentials. For simplicity, this example assumes the Schema Registry URL is either unsecured or credentials are part of the URL if supported by your SR client version (Confluent libraries 7.9.0).
 
 ## Deployment to Appian
 
